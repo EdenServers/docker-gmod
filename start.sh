@@ -14,6 +14,6 @@ cd /server/steamcmd && ./steamcmd.sh +login anonymous \
                  +app_update 4020 validate \
                  +quit 
 
-cd /server/gmod && ./srcds_run -game garrysmod -console -usercon  \
+cd /server/gmod && ./srcds_run -debug -game garrysmod -console -usercon  \
                                +maxplayers $MAXPLAYERS \  
                                +map $MAP  $STARTUP_OPTIONS

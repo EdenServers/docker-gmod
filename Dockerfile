@@ -1,13 +1,8 @@
-FROM phusion/baseimage:0.9.17
+FROM debian:wheezy
 MAINTAINER EdenServers
 
-#Ubuntu requirements
-WORKDIR /etc/apt/sources.list.d
-RUN echo "deb http://old-releases.ubuntu.com/ubuntu/ raring main restricted universe multiverse" >ia32-libs-raring.list
-RUN dpkg --add-architecture i386
-RUN apt-get -y update
-RUN apt-get -y install ia32-libs
-RUN apt-get -y install wget
+#Debian requirements
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install lib32gcc1 wget
 
 #Steamcmd installation
 RUN mkdir -p /server/steamcmd
@@ -23,9 +18,19 @@ RUN ./steamcmd.sh +login anonymous \
 RUN apt-get install -y openssh-server rssh
 ADD rssh.conf /etc/rssh.conf
 
+#Lib fixes (kudos to https://github.com/suchipi/gmod-server-docker)
+RUN mkdir /gmod-libs
+WORKDIR /gmod-libs
+RUN wget http://launchpadlibrarian.net/195509222/libc6_2.15-0ubuntu10.10_i386.deb
+RUN dpkg -x libc6_2.15-0ubuntu10.10_i386.deb .
+RUN cp lib/i386-linux-gnu/* /server/gmod/bin/
+RUN cp /server/steamcmd/linux32/libstdc++.so.6 /server/gmod/bin/
+RUN mkdir /root/.steam
+RUN mkdir /root/.steam/sdk32/
+RUN cp /server/gmod/bin/libsteam.so /root/.steam/sdk32
+
 #Server config
 EXPOSE 27015
-EXPOSE 27005
 
 #Server Start
 WORKDIR /server/gmod
